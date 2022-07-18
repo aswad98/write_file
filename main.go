@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"os/exec"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type File struct {
@@ -16,7 +17,11 @@ type File struct {
 func main() {
 
 	e := echo.New()
-	e.POST("/", func(c echo.Context) error {
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"*"},
+	}))
+	e.POST("/writefile", func(c echo.Context) error {
 		t := new(File)
 		if err := c.Bind(t); err != nil {
 			return err
@@ -29,7 +34,6 @@ func main() {
 		if err != nil {
 			panic("some error found")
 		}
-
 		return c.String(http.StatusOK, "success")
 	})
 	e.Logger.Fatal(e.Start(":1323"))
